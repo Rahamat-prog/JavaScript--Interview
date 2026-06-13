@@ -80,17 +80,80 @@
 
 // name();
 
-console.log(0 || "hello" || true);
 
-console.log(1 && "hello" && null);
-console.log(null || undefined || 0 || "" || "final");
+// console.log(0 || "hello" || true);
 
-
-
+// console.log(1 && "hello" && null);
+// console.log(null || undefined || 0 || "" || "final");
 
 
+//.........Assignment .................
+// Fix this broken function and explain every bug:
+
+// function calculateDiscount(price, discount) {
+//     if (price = 0) {
+//         return;
+//     }
+//     const final = price - (price * discount / 100)
+//     return final
+// }
+
+// // console.log(calculateDiscount(0, 10)); // 0 
+// console.log(calculateDiscount(200, 10));// 0
+// console.log(calculateDiscount(200)); // NaN
 
 
+// find out the bug and correct this function 
+
+// function calculateDiscount(price, discount = 0) {
+//     if (price === 0) {
+//         return 0;
+//     }
+//     const final = price - (price * discount / 100)
+//     return final;
+// }
+
+// console.log(calculateDiscount(0, 10)); // 0
+// console.log(calculateDiscount(200, 10));// 180 
+// console.log(calculateDiscount(200)); // 200
 
 
+//...........Assignment 2:...........
+// function isEligible(age, hasID, memberType) {
+//     if (age >= 18 && hasID || memberType === "VIP") {
+//         return "Access Granted";
+//     }
+//     return "Access Denied";
+// }
 
+// console.log(isEligible(16, false, "VIP")); //  Access Granted
+// console.log(isEligible(18, false, "regular"));// Access Denied
+// console.log(isEligible(16, true, "regular")); // Access Denied
+ 
+
+
+// Assignment 3 ..............
+// function mystery(a, b) {
+//     if (a || b) {
+//         return a && b;
+//     }
+// }
+
+// console.log(mystery(0, 1));// false 
+// console.log(mystery(1, 2));// true 
+// console.log(mystery(0, 0));// undefined 
+// const result =  mystery("", "hello"); // 
+// console.log(typeof(result)) // "" but her it is invisible 
+//  console.log(result === "") // 
+
+
+//...........The Number.EPSILON static data property represents the difference between 1 and the smallest floating point number greater than 1.
+// For this reason, it is often advised that floating point numbers should never be compared with ===.
+
+console.log(0.1 + 0.2 === 0.3); // false 
+
+console.log(Math.abs(0.1 + 0.2 === 0.3) < Number.EPSILON) // true 
+
+
+console.log(0.1 + 0.2); // 0.30000000000000004
+console.log(0.1 + 0.2 === 0.3); // false

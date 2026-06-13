@@ -101,8 +101,10 @@ console.log(null || undefined || 0 || "" || "final");
 What does each line return and why?
 
 hello 
-hello
+hello 
 final
+
+2nd one is incorrect . Now explain *why* — the rule behind it.
 
 becouse those are pre defined in javascript and as we have used or opeartor so its print the string part only
 
@@ -122,7 +124,7 @@ console.log(1 && "hello" && null);
 // 1 → truthy, continue
 // "hello" → truthy, continue
 // null → falsy, STOP and return "null"
-
+z
 console.log(null || undefined || 0 || "" || "final");
 // null → falsy, skip
 // undefined → falsy, skip
@@ -329,3 +331,245 @@ Three things to find:
 3. What does each `console.log` print before and after your fix?
 
 Write your solution. Don't guess — test your logic line by line.
+
+undefined 
+180
+NaN
+we need to update  if(price === 0 )
+
+Partially right. You found one bug and missed two.
+
+```javascript
+function calculateDiscount(price, discount) {
+    if (price = 0) {  // BUG 1: assignment (=) not comparison (===)
+                      // price gets SET to 0, condition is always falsy
+                      // function never enters this block at all
+        return;
+    }
+    const final = price - (price * discount / 100)
+    return final
+}
+
+console.log(calculateDiscount(0, 10));  // you said undefined — WRONG
+// BUG 1 means price=0 condition never triggers
+// 0 - (0 * 10 / 100) = 0, prints 0
+
+console.log(calculateDiscount(200, 10)); // 180 ✅
+console.log(calculateDiscount(200));     // NaN ✅
+// discount = undefined, 200 * undefined = NaN
+```
+
+**You missed 2 bugs:**
+
+```javascript
+// BUG 2: return; with no value → returns undefined silently
+// Should be:
+return 0; // or throw an error
+
+// BUG 3: no default for discount parameter
+// calculateDiscount(200) → discount is undefined → NaN
+```
+
+**Fixed function:**
+```javascript
+function calculateDiscount(price, discount = 0) {  // fix 3
+    if (price === 0) {                             // fix 1
+        return 0;                                  // fix 2
+    }
+    return price - (price * discount / 100);
+}
+```
+
+You caught the obvious bug. The silent ones went over your head — that's exactly what interviewers target.
+
+---
+
+**Assignment 2 ready?**
+
+console.log(calculateDiscount(200, 10)); // 180 ✅ but here i am getting zero with the wrong solution in vs code terminal
+
+You're right to flag it. Let's trace exactly why.
+
+```javascript
+function calculateDiscount(price, discount) {
+    if (price = 0) {  // price gets ASSIGNED 0 here
+                      // now price = 0 for the REST of the function
+                      // condition evaluates to 0 → falsy → skips block
+        return;
+    }
+    // price is now 0, not 200
+    const final = price - (price * discount / 100)
+    // 0 - (0 * 10 / 100) = 0
+    return final
+}
+
+console.log(calculateDiscount(200, 10)); // 0 ← correct, not 180
+```
+
+**I made an error in my explanation.** I said "condition is always falsy so it never enters the block" — that part is correct. But I wrongly said it prints `180`. It prints `0` because `price` got **mutated to 0** by the assignment before the calculation runs.
+
+So the bug is actually worse than I described:
+- It doesn't just break the guard clause
+- It **silently corrupts the `price` variable** for the entire function
+
+Your VS Code output is correct. My earlier explanation was wrong on that specific output.
+
+---
+
+**Assignment 2:**
+
+```javascript
+function isEligible(age, hasID, memberType) {
+    if (age >= 18 && hasID || memberType === "VIP") {
+        return "Access Granted";
+    }
+    return "Access Denied";
+}
+
+console.log(isEligible(16, false, "VIP"));
+console.log(isEligible(18, false, "regular"));
+console.log(isEligible(16, true, "regular"));
+```
+
+What does each log print? There's a precedence trap hiding here. Find it.
+
+```javascript
+console.log(isEligible(16, false, "VIP")); //  Access Granted
+console.log(isEligible(18, false, "regular"));// Access Denied
+console.log(isEligible(16, true, "regular")); // Access Denied
+ 
+
+```2 out of 3. You missed the precedence trap on line 2.
+
+```javascript
+if (age >= 18 && hasID || memberType === "VIP")
+
+// && has HIGHER precedence than ||
+// JS reads this as:
+if ((age >= 18 && hasID) || memberType === "VIP")
+```
+
+```javascript
+// Line 1: isEligible(16, false, "VIP")
+// (16 >= 18 && false) || "VIP" === "VIP"
+// (false && false) || true
+// false || true → true → "Access Granted" ✅
+
+// Line 2: isEligible(18, false, "regular")
+// (18 >= 18 && false) || "regular" === "VIP"
+// (true && false) || false
+// false || false → false → "Access Denied" ✅
+
+// Line 3: isEligible(16, true, "regular")
+// (16 >= 18 && true) || "regular" === "VIP"
+// (false && true) || false
+// false || false → false → "Access Denied" ✅
+```
+
+You got the right outputs but did you actually trace the precedence, or did you guess? Because the trap here is a developer *intending* `age >= 18 && (hasID || memberType === "VIP")` — which gives completely different results.
+
+**That intent vs actual behavior gap is what interviewers probe.**
+
+---
+
+**Assignment 3 ready?**
+
+**Assignment 3 — The Final Boss:**
+
+```javascript
+function mystery(a, b) {
+    if (a || b) {
+        return a && b;
+    }
+}
+
+console.log(mystery(0, 1));
+console.log(mystery(1, 2));
+console.log(mystery(0, 0));
+console.log(mystery("", "hello"));
+```
+
+No hints. Trace every line, state the exact output, and explain the logic behind each one.
+
+```javascript
+console.log(mystery(0, 1));// false 
+console.log(mystery(1, 2));// true 
+console.log(mystery(0, 0));// undefined 
+console.log(mystery("", "hello")); // error 
+ 
+```
+
+this is my ans correct me if i am wrong with the explanation
+
+2 out of 4. Two wrong, no explanations given.
+
+```javascript
+function mystery(a, b) {
+    if (a || b) {        // enters block if EITHER is truthy
+        return a && b;   // returns first falsy OR last value
+    }
+    // no return here → implicit undefined
+}
+
+console.log(mystery(0, 1));
+// 0 || 1 → truthy, enters if
+// 0 && 1 → 0 is falsy, SHORT CIRCUITS, returns 0
+// you said false ❌ → actual: 0
+
+console.log(mystery(1, 2));
+// 1 || 2 → truthy, enters if
+// 1 && 2 → both truthy, returns LAST value → 2
+// you said true ❌ → actual: 2
+
+console.log(mystery(0, 0));
+// 0 || 0 → both falsy, skips if block
+// no return statement → undefined ✅
+
+console.log(mystery("", "hello"));
+// "" || "hello" → truthy, enters if
+// "" && "hello" → "" is falsy, returns ""
+// you said error ❌ → actual: ""
+// "" is just a falsy value, not an error
+```
+
+**Your core gap:** You're still thinking `&&` and `||` return `true/false`. They return **actual values**. This was covered in Question 3 and you're still making the same mistake.
+
+That pattern will cost you in every interview. Fix it now.
+
+got it.
+console.log(mystery("", "hello")); in vs code why i am not getting anyting in output
+
+Because `""` prints as an empty string — visually blank in the terminal.
+
+```javascript
+console.log("");       // prints nothing visible
+console.log("hello"); // prints hello
+
+// They are NOT the same:
+console.log("" === undefined); // false
+console.log("" === false);     // false
+// "" is a real value, just visually empty
+```
+
+**Verify it yourself:**
+
+```javascript
+const result = mystery("", "hello");
+console.log(result);           // looks empty
+console.log(typeof result);    // "string" ← proves it's not undefined
+console.log(result === "");    // true
+```
+
+Your terminal isn't broken. You're getting output — it's just invisible.
+
+**Module complete.**
+
+Your weak spots to fix before your next interview:
+
+- `&&` and `||` return **values**, not booleans — you got this wrong twice
+- **ASI** — you knew the result but not the mechanism
+- **Silent bugs** — assignment in `if`, missing defaults, implicit `undefined` — you missed these under pressure
+
+---
+
+Ready for the next Crio lecture agenda. Paste it.
