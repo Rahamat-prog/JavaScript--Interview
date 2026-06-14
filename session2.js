@@ -133,16 +133,16 @@
 
 
 // Assignment 3 ..............
-// function mystery(a, b) {
-//     if (a || b) {
-//         return a && b;
-//     }
-// }
+function mystery(a, b) {
+    if (a || b) {
+        return a && b;
+    }
+}
 
-// console.log(mystery(0, 1));// false 
-// console.log(mystery(1, 2));// true 
-// console.log(mystery(0, 0));// undefined 
-// const result =  mystery("", "hello"); // 
+console.log(mystery(0, 1));// 0
+console.log(mystery(1, 2));// 2
+console.log(mystery(0, 0));// undefined 
+const result =  mystery("", "hello"); // empty string 
 // console.log(typeof(result)) // "" but her it is invisible 
 //  console.log(result === "") // 
 
@@ -150,10 +150,10 @@
 //...........The Number.EPSILON static data property represents the difference between 1 and the smallest floating point number greater than 1.
 // For this reason, it is often advised that floating point numbers should never be compared with ===.
 
-console.log(0.1 + 0.2 === 0.3); // false 
+// console.log(0.1 + 0.2 === 0.3); // false 
 
-console.log(Math.abs(0.1 + 0.2 === 0.3) < Number.EPSILON) // true 
+// console.log(Math.abs(0.1 + 0.2 === 0.3) < Number.EPSILON) // true 
 
 
-console.log(0.1 + 0.2); // 0.30000000000000004
-console.log(0.1 + 0.2 === 0.3); // false
+// console.log(0.1 + 0.2); // 0.30000000000000004
+// console.log(0.1 + 0.2 === 0.3); // false
