@@ -973,4 +973,117 @@ Write a function that accepts any value and returns a precise type string — no
 
 ---
 
-Ready for your next Crio agenda whenever you are.
+## JavaScript — Pre-Interview Revision Sheet
+
+
+### 1. Core Concepts Cheat Sheet
+
+- **JIT Compilation** — V8 interprets first for fast startup, then compiles hot code paths to machine code at runtime
+- **Execution Context** — the environment JS creates to run code, always has two phases: Memory Creation then Execution
+- **Memory Creation Phase** — before any code runs, JS allocates memory for all variables (`undefined`) and stores full function bodies
+- **Call Stack** — LIFO structure that tracks which EC is currently running; only one runs at a time
+- **Scope Chain** — when a variable isn't found in current EC, JS walks up to the parent EC until it hits Global
+- **Hoisting** — `var` is allocated AND initialized to `undefined` in Phase 1; `let`/`const` are allocated but uninitialized
+- **Temporal Dead Zone** — the gap between `let`/`const` being allocated and initialized; access during this window throws ReferenceError
+- **Primitive vs Reference Types** — primitives stored by value on Stack; objects stored on Heap, variables hold pointers
+- **Event Loop** — when Call Stack empties, drains Microtask Queue completely, then pulls one item from Callback Queue
+- **Microtask Queue** — higher priority queue for Promises; always drained before Callback Queue
+- **Callback Queue** — lower priority queue for `setTimeout`, `setInterval` callbacks
+
+---
+
+### 2. Syntax & Code Patterns
+
+```javascript
+// TDZ — let/const allocated but inaccessible before declaration
+console.log(x); // ReferenceError
+let x = 5;
+
+// var hoisting — initialized to undefined, no crash
+console.log(y); // undefined
+var y = 5;
+
+// typeof exemption — only operator safe on undeclared variables
+typeof undeclaredVar; // "undefined", no ReferenceError
+
+// typeof null bug — returns "object", use strict equality instead
+null === null;        // true — correct null check
+Array.isArray([]);    // true — correct array check
+
+// const locks the pointer, not the Heap value
+const obj = { name: "Alice" };
+obj.name = "Bob";     // fine — mutating Heap object
+obj = {};             // TypeError — reassigning pointer
+
+// spread for safe object copy — original untouched
+const updated = { ...obj, name: "Bob" };
+
+// pass-by-reference trap — reassignment vs mutation
+function replace(person) {
+  person = { name: "Bob" }; // only redirects local pointer
+}                           // caller's variable unchanged
+
+// Event Loop order
+console.log("1");                           // sync — runs first
+setTimeout(() => console.log("2"), 0);      // Callback Queue — runs last
+Promise.resolve().then(() => console.log("3")); // Microtask Queue — runs before setTimeout
+console.log("4");                           // sync — runs second
+// Output: 1, 4, 3, 2
+```
+
+---
+
+### 3. Common Pitfalls & Mistakes
+
+**Pitfall 1 — `var` in loops with async:**
+`var` is function-scoped, so all `setTimeout` callbacks in a loop share the same variable. By the time they fire, the loop is done. Use `let` — each iteration gets its own block-scoped variable.
+
+**Pitfall 2 — mutation through shared references:**
+Copying an object with `=` copies the pointer, not the object. Both variables mutate the same Heap object. Always use spread `{...obj}` or `Object.assign` when you need an independent copy.
+
+**Pitfall 3 — describing behavior without explaining why:**
+Saying "`let` throws a ReferenceError before declaration" is incomplete. The full answer is: `let` is hoisted but deliberately left uninitialized — the TDZ is that gap. Interviewers are filtering for the "why", not the "what."
+
+---
+
+### 4. Key Terms Glossary
+
+| Term | One-Line Definition |
+|---|---|
+| **JIT** | Just-In-Time compilation — translate to machine code at runtime, not before |
+| **V8** | Google's JS engine used in Chrome and Node.js |
+| **AST** | Abstract Syntax Tree — structured representation of your code the engine builds first |
+| **Execution Context** | The environment created each time code runs, holds memory and execution state |
+| **Call Stack** | LIFO structure tracking active ECs; enforces single-threaded execution |
+| **Hoisting** | Memory allocation during Phase 1 before any code executes |
+| **TDZ** | Temporal Dead Zone — `let`/`const` exists in memory but is uninitialized and inaccessible |
+| **Heap** | Memory region for dynamically sized data — objects and arrays live here |
+| **Stack** | Memory region for fixed-size data — primitives and pointers live here |
+| **Event Loop** | Monitors Call Stack; moves callbacks to Stack when it's empty |
+| **Microtask Queue** | High-priority async queue for Promises — drained before Callback Queue |
+| **Callback Queue** | Lower-priority async queue for `setTimeout`/`setInterval` |
+| **Web APIs** | Browser/Node features outside the JS engine — `setTimeout`, `fetch`, `console` |
+| **Scope Chain** | The lookup path JS walks when a variable isn't found in the current EC |
+| **Pass-by-reference** | Function receives a pointer to the Heap object — mutations affect the original |
+
+---
+
+You still haven't answered the two follow-up questions from the Event Loop section — why `promise 2` appears without being pre-queued, and why `timeout` loses despite registering first. Don't skip those before your interview. That's exactly the depth a senior interviewer probes for.
+
+event loop check the microtask queqe
+
+02:50
+You're circling the answer without landing on it. Let me break it down to one sentence:
+
+When promise 1 finishes executing, its .then returns a resolved promise — which immediately queues promise 2 into the Microtask Queue.
+
+So the full answer to both questions:
+
+Q1 — Why does promise 2 appear even though it wasn't queued initially:
+promise 2 didn't exist in the queue when the stack first emptied. It got added during the draining of the Microtask Queue — the moment promise 1 finished executing, its chained .then resolved and pushed promise 2 in. Because the Event Loop rule is "drain Microtask Queue completely", it doesn't move on until the queue is empty — including items added mid-drain.
+
+Q2 — Why timeout loses despite registering first:
+setTimeout callback sits in the Callback Queue. The Event Loop never touches the Callback Queue until the Microtask Queue is completely empty. By the time both promises finish, timeout has been waiting the whole time — priority isn't about registration order, it's about which queue gets checked first.
+
+The Event Loop drains the Microtask Queue completely — including newly added items — before touching the Callback Queue even once.
+
