@@ -61,7 +61,7 @@ JavaScript was created in 1995 to solve one problem: **HTML was dead**. Pages lo
 Why it's still dominant:
 - It's the **only language that runs natively in the browser** — no install, no compile step for the user
 - Node.js took it server-side, so one language now covers the full stack
-- The ecosystem (npm) is the largest package registry on earth
+- The ecosystem (npm) is the largest package registry on earth.
 
 For interviews, this matters zero. Move on.
 
